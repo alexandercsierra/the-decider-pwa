@@ -1,60 +1,13 @@
 import "./styles.css";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import List from "./components/List";
-import ListForm from "./components/ListForm";
+import useDecider from "./hooks/useDecider";
+import SetLists from "./components/SetLists";
+
 
 export default function App() {
-  const [names, setNames] = useState({
-    listA: localStorage.getItem("listAName") || "",
-    listB: localStorage.getItem("listBName") || "",
-  });
-  const [listA, setListA] = useState(
-    JSON.parse(localStorage.getItem("listA")) || []
-  );
-  const [listB, setListB] = useState(
-    JSON.parse(localStorage.getItem("listB")) || []
-  );
-  const [showTotals, setShowTotals] = useState(false);
-  const [showColors, setShowColors] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem("listA", JSON.stringify(listA));
-    localStorage.setItem("listB", JSON.stringify(listB));
-  }, [listA, listB]);
-
-  useEffect(() => {
-    localStorage.setItem("listAName", names.listA);
-    localStorage.setItem("listBName", names.listB);
-  }, [names.listA, names.listB]);
-
-  const deleteItem = (item, listLetter) => {
-    const list = listLetter === "A" ? listA : listB;
-    const newList = list.filter((listItem) => listItem.id !== item.id);
-    listLetter === "A" ? setListA(newList) : setListB(newList);
-  };
-
-  const editItem = (item, listLetter) => {
-    const list = listLetter === "A" ? listA : listB;
-    const newList = list.filter((listItem) => listItem.id !== item.id);
-    listLetter === "A"
-      ? setListA([...newList, item])
-      : setListB([...newList, item]);
-  };
-
-  const getTotal = (list) => {
-    return list.reduce((curr, total) => curr + Number(total.num), 0);
-  };
-
-  const getWinner = () => {
-    const totalA = getTotal(listA);
-    const totalB = getTotal(listB);
-    if (totalA === totalB) {
-      return "It's a draw";
-    }
-    return getTotal(listA) > getTotal(listB)
-      ? `The winner is ${names.listA}`
-      : `The winner is ${names.listB}`;
-  };
+  const { names, setNames, listA, setListA, listB, setListB, showTotals, setShowTotals, showColors, setShowColors, deleteItem, editItem, getTotal, getWinner } = useDecider()
 
   return names.listA && names.listB ? (
     <div className="App">
@@ -64,7 +17,6 @@ export default function App() {
         onClick={() => setShowTotals(!showTotals)}
         style={{
           background: "#138496",
-          // width: "60px",
           color: "white",
           padding: "15px",
           border: "none",
@@ -79,7 +31,6 @@ export default function App() {
         onClick={() => setShowColors(!showColors)}
         style={{
           background: "#138496",
-          // width: "60px",
           color: "white",
           padding: "15px",
           border: "none",
@@ -102,7 +53,6 @@ export default function App() {
         }}
         style={{
           background: "#138496",
-          // width: "60px",
           color: "white",
           padding: "15px",
           border: "none",
@@ -192,68 +142,3 @@ export default function App() {
   );
 }
 
-const SetLists = ({ setNames }) => {
-  const [values, setValues] = useState({
-    listA: "",
-    listB: "",
-  });
-
-  const handleChange = (e) => {
-    setValues({
-      ...values,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleClick = () => {
-    console.log({ values });
-    setNames(values);
-  };
-
-  return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "250px",
-          }}
-        >
-          <label>Name Choice 1</label>
-          <input name="listA" value={values.listA} onChange={handleChange} />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "250px",
-          }}
-        >
-          <label>Name Choice 2</label>
-          <input name="listB" value={values.listB} onChange={handleChange} />
-        </div>
-      </div>
-      <button
-        onClick={handleClick}
-        style={{
-          background: "#138496",
-          // width: "60px",
-          color: "white",
-          padding: "10px 15px",
-          border: "none",
-          borderRadius: "4px",
-          marginTop: "25px",
-          fontWeight: "700",
-        }}
-      >
-        Set Names
-      </button>
-    </div>
-  );
-};
